@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "teaparty"
+version = "0.6.0"
+description = "Seating and riddles for Wonderland's never-ending tea party."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [{ name = "Wonderland Engineering", email = "eng@wonderland.example" }]
+
+[tool.setuptools.packages.find]
+where = ["src"]

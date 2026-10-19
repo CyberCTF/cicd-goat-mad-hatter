@@ -1,0 +1,15 @@
+# Jenkins plugins for the mad-hatter lab. jenkins-plugin-cli resolves compatible versions for the
+# pinned controller. Just enough for: config-as-code, a Job DSL seed job, a git-backed multibranch
+# pipeline that polls Gitea, a Jenkinsfile fetched from a SEPARATE repo (remote-file, the Remote
+# Jenkinsfile Provider — what makes the pipeline read-only to the attacker), and the credential
+# binding the poisoned Makefile abuses.
+configuration-as-code
+job-dsl
+git
+workflow-aggregator
+workflow-multibranch
+remote-file
+credentials
+credentials-binding
+plain-credentials
+ws-cleanup

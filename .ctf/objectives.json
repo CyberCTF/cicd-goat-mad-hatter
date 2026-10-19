@@ -1,0 +1,19 @@
+{
+  "objectives": [
+    {
+      "key": "mad-hatter",
+      "title": "Mad Hatter",
+      "prompt": "\"Why is a raven like a writing desk?\" Wonderland runs CI on Jenkins, building the Wonderland/mad-hatter application repository (hosted on Gitea) on every branch and pull request. You have write access to that application repo — but the pipeline's Jenkinsfile is not in it. It lives in a separate, protected repository (Wonderland/mad-hatter-pipeline) that you can read but not modify, so you cannot poison the pipeline directly. The pipeline runs `make` inside the application checkout with Wonderland's release token, flag3, bound into the build environment. Edit the application's Makefile so that `make` prints flag3 in a form the console will not mask, push the branch and open a pull request. When the pipeline runs, read the build's console output, recover the value, and submit the flag.",
+      "check": { "evidence": "SECRET", "format": "%s" },
+      "dev": "mh-dev-flag-not-a-real-secret-0000",
+      "capabilities": [
+        "ppe-indirect-build-script"
+      ],
+      "hints": [
+        "You cannot edit the Jenkinsfile — it is in Wonderland/mad-hatter-pipeline, which you can only read. But read it: it runs `make` inside the mad-hatter application checkout with flag3 bound as the FLAG environment variable. You CAN edit the application's Makefile.",
+        "Change the Makefile's default target so `make` exfiltrates the token, e.g. `echo \"$FLAG\" | rev | base64`. Jenkins masks a bound credential's value in the console — and, on modern versions, its plain base64 too; reversing before base64 evades the masker, and you undo it to recover the flag.",
+        "The multibranch pipeline builds every branch of the application repo and rescans about once a minute. Push your branch (and open a pull request); the build starts on its own. Read it under the wonderland-mad-hatter job, then `base64 -d <blob> | rev`."
+      ]
+    }
+  ]
+}

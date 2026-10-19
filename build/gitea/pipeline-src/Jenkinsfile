@@ -1,0 +1,75 @@
+// Wonderland CI — the PROTECTED mad-hatter pipeline.
+//
+// This Jenkinsfile lives in its OWN repository (Wonderland/mad-hatter-pipeline), separate from the
+// application it builds. Application developers can read it but cannot modify it, so they cannot
+// change what the pipeline does — no Direct-PPE. What they CAN change is the application's build
+// script: this pipeline checks out the mad-hatter application at the branch under test and runs its
+// `make` with Wonderland's release token (flag3) bound into the environment as FLAG. Whoever
+// controls the application's Makefile controls what `make` runs here (Indirect-PPE).
+pipeline {
+    agent any
+
+    // The Jenkinsfile is fetched from this (pipeline) repo, so the default checkout would clone the
+    // pipeline repo, not the application. Skip it and check the application out explicitly, at the
+    // branch that triggered this build.
+    options {
+        skipDefaultCheckout(true)
+    }
+
+    environment {
+        PROJECT = 'teaparty'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'gitea-jenkins',
+                                                  usernameVariable: 'GITEA_USER',
+                                                  passwordVariable: 'GITEA_PASS')]) {
+                    sh '''
+                        set -e
+                        rm -rf app
+                        git clone -q "http://${GITEA_USER}:${GITEA_PASS}@gitea:3000/Wonderland/mad-hatter.git" app
+                        git -C app checkout -q "${BRANCH_NAME}"
+                    '''
+                }
+            }
+        }
+
+        stage('Install_Requirements') {
+            steps {
+                sh 'cd app && echo "requirements installed for ${PROJECT}"'
+            }
+        }
+
+        stage('Lint') {
+            steps {
+                sh 'cd app && echo "lint ${PROJECT}: ok"'
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                sh 'cd app && echo "pytest ${PROJECT}: ok"'
+            }
+        }
+
+        stage('make') {
+            steps {
+                // The release token is bound only for this step. The application's Makefile decides
+                // what `make` does with it.
+                withCredentials([usernamePassword(credentialsId: 'flag3',
+                                                  usernameVariable: 'USERNAME',
+                                                  passwordVariable: 'FLAG')]) {
+                    sh 'cd app && make'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}

@@ -1,0 +1,48 @@
+# Jenkins Configuration-as-Code for Wonderland's controller.
+#
+# The flag3 credential is a GLOBAL-scope username/password credential whose PASSWORD is the release
+# token — exactly the upstream Mad Hatter shape (CICD-SEC-4): the pipeline binds it as the FLAG
+# environment variable while it runs `make`. Its value is NOT in this file and NOT in the image; it
+# is resolved at boot from a file secret (`${flag3}` -> $SECRETS/flag3), which the entrypoint stages
+# from the per-player input Isoloom mounts at run time.
+jenkins:
+  systemMessage: "Wonderland CI — builds mad-hatter on every branch and pull request."
+  numExecutors: 1
+  mode: NORMAL
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "admin"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+security:
+  globalJobDslSecurityConfiguration:
+    useScriptSecurity: false
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - usernamePassword:
+              id: "flag3"
+              scope: GLOBAL
+              username: "flag3"
+              password: "${flag3}"
+              description: "Wonderland release token — keep secret"
+          - usernamePassword:
+              id: "gitea-jenkins"
+              scope: GLOBAL
+              username: "jenkins"
+              password: "jenkins"
+              description: "Gitea read access for polling repositories and fetching the pipeline"
+
+unclassified:
+  location:
+    url: "http://jenkins:8080/"
+
+jobs:
+  - file: /usr/share/jenkins/casc/jobdsl/mad-hatter.groovy

@@ -1,0 +1,13 @@
+{
+  "project_name": "cyberlabs-cicd-goat-mad-hatter",
+  "slug": "cicd-goat-mad-hatter",
+  "title": "Mad Hatter: indirect poisoned pipeline execution",
+  "description": "A Jenkins controller builds Wonderland's mad-hatter application repository (hosted on Gitea), but the pipeline's Jenkinsfile lives in a separate, protected repository the attacker cannot modify, so a direct pipeline edit is impossible. The protected pipeline runs `make` inside the application checkout with a release token bound into the build environment. An attacker with write access to the application repo edits its Makefile — the build script the pipeline invokes — to exfiltrate the token in a form the console will not mask, then pushes a branch / opens a pull request to run it (OWASP CICD-SEC-4, Indirect Poisoned Pipeline Execution). Reproduces the \"Mad Hatter\" challenge from CI/CD Goat.",
+  "category": "cicd",
+  "difficulty": 2,
+  "evidence_kind": "SECRET",
+  "capabilities": [
+    "ppe-indirect-build-script"
+  ],
+  "question": "Perform an Indirect-PPE attack against the Wonderland/mad-hatter pipeline by poisoning the Makefile it runs, and exfiltrate the flag3 credential from the Jenkins credential store."
+}
